@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const User = require("../models/User");
+const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 
@@ -19,5 +19,6 @@ router.post("/verify-otp", async (req,res)=>{
   const token = jwt.sign({email:user.email}, process.env.JWT_SECRET);
   res.json({token});
 });
+
 
 module.exports = router;
