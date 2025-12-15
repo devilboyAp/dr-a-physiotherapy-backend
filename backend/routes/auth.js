@@ -1,24 +1,29 @@
-const router = require("express").Router();
+const express = require("express");
+const router = express.Router();
 const User = require("../models/user");
-const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
+const bcrypt = require("bcryptjs");
 
-router.post("/send-otp", async (req,res)=>{
-  const otp = Math.floor(100000+Math.random()*900000);
-  await User.findOneAndUpdate(
-    {email:req.body.email},
-    {email:req.body.email, otp, otpExpiry: Date.now()+300000},
-    {upsert:true}
-  );
-  res.send("OTP Sent");
+router.post("/register", async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    let user = await User.findOne({ email });
+    if (user) return res.status(400).json({ message: "User already exists" });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    user = new User({
+      name,
+      email,
+      password: hashedPassword
+    });
+
+    await user.save();
+    res.json({ message: "User registered successfully" });
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
-
-router.post("/verify-otp", async (req,res)=>{
-  const user = await User.findOne({email:req.body.email});
-  if(!user || user.otp!=req.body.otp) return res.send("Invalid OTP");
-  const token = jwt.sign({email:user.email}, process.env.JWT_SECRET);
-  res.json({token});
-});
-
 
 module.exports = router;
