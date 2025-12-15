@@ -12,16 +12,10 @@ mongoose.connect(process.env.MONGO_URI)
 .catch(err=>console.log(err));
 
 app.use("/auth", require("./routes/auth"));
-app.use("/patients", require("./routes/patient"));
-app.use("/appointments", require("./routes/appointment"));
-app.use("/records", require("./routes/record"));
-app.use("/bills", require("./routes/bill"));
-app.use("/admin", require("./routes/admin"));
-app.use("/ai", require("./routes/ai"));
-app.use("/backup", require("./routes/backup"));
 
 app.get("/", (req,res)=>{
   res.send("Dr. A Physiotherapy Backend Running");
 });
+
 
 app.listen(3000, ()=>console.log("Server started"));
