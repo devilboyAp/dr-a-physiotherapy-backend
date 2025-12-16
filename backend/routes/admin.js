@@ -5,7 +5,9 @@ const authMiddleware = require("../middleware/auth");
 
 const router = express.Router();
 
-/* ================= ADMIN CREATE USER ================= */
+/* =========================
+   ADMIN: CREATE USER
+========================= */
 router.post("/create-user", authMiddleware, async (req, res) => {
   try {
     // Only admin allowed
@@ -19,7 +21,7 @@ router.post("/create-user", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "Missing fields" });
     }
 
-    if (!["doctor", "staff", "admin"].includes(role)) {
+    if (!["admin", "doctor", "staff"].includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
 
@@ -34,7 +36,7 @@ router.post("/create-user", authMiddleware, async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role
+      role,
     });
 
     await user.save();
@@ -44,10 +46,26 @@ router.post("/create-user", authMiddleware, async (req, res) => {
       user: {
         name: user.name,
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
+/* =========================
+   ADMIN: GET ALL USERS
+========================= */
+router.get("/users", authMiddleware, async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const users = await User.find().select("-password");
+
+    res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
