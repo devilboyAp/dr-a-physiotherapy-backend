@@ -4,18 +4,28 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
+
+/* ---------- MIDDLEWARE ---------- */
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI)
-.then(()=>console.log("MongoDB Connected"))
-.catch(err=>console.log(err));
+/* ---------- DATABASE ---------- */
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => console.error("MongoDB Error:", err));
 
+/* ---------- ROUTES ---------- */
 app.use("/auth", require("./routes/auth"));
+app.use("/admin", require("./routes/admin")); // ✅ VERY IMPORTANT
 
-app.get("/", (req,res)=>{
-  res.send("Dr. A Physiotherapy Backend Running");
+/* ---------- HEALTH CHECK ---------- */
+app.get("/", (req, res) => {
+  res.send("Dr. A Physiotherapy Backend Running 🚀");
 });
 
-
-app.listen(3000, ()=>console.log("Server started"));
+/* ---------- SERVER ---------- */
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
+});
