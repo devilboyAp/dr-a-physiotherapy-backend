@@ -1,12 +1,24 @@
 const jwt = require("jsonwebtoken");
 
-module.exports = (req,res,next)=>{
-  const token = req.headers.authorization;
-  if(!token) return res.status(401).send("No token");
-  try{
-    jwt.verify(token, process.env.JWT_SECRET);
+module.exports = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).json({ message: "No token" });
+  }
+
+  // 🔑 Remove "Bearer " from token
+  const token = authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ message: "Token malformed" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // very important for admin check
     next();
-  }catch{
-    res.status(401).send("Invalid token");
+  } catch (err) {
+    return res.status(401).json({ message: "Invalid token" });
   }
 };
