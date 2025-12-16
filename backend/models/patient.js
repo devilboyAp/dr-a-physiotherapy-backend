@@ -1,11 +1,23 @@
 const mongoose = require("mongoose");
 
-module.exports = mongoose.model("Patient", new mongoose.Schema({
-  patientId: String,
-  name: String,
-  age: Number,
-  gender: String,
-  phone: String,
-  diagnosis: String,
-  createdAt: { type: Date, default: Date.now }
-}));
+const patientSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    age: Number,
+    gender: String,
+    phone: String,
+
+    assignedDoctor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    }
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model("Patient", patientSchema);
