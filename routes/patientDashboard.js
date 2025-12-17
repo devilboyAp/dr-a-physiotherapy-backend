@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
 const Appointment = require("../models/appointment");
-const Patient = require("../models/Patient");
+const User = require("../models/User");
 
 // GET Patient Dashboard
 router.get("/patient", auth, async (req, res) => {
@@ -30,7 +30,7 @@ router.get("/patient", auth, async (req, res) => {
       }),
     ]);
 
-    const patient = await Patient.findById(patientId);
+    const patient = await User.findById(patientId);
 
     res.json({
       patient,
