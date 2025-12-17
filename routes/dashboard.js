@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
-const Patient = require("../models/Patient");
+const Patient = require("../models/patient");
 const Appointment = require("../models/Appointment");
 
 // Doctor dashboard
