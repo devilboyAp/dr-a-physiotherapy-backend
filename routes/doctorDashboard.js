@@ -1,53 +1,59 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
-const Patient = require("../models/patient");
 const Appointment = require("../models/appointment");
+const User = require("../models/User");
 
-// Doctor Dashboard
-router.get("/dashboard", auth, async (req, res) => {
-  if (req.user.role !== "doctor") {
-    return res.status(403).send("Access denied");
-  }
-
+// GET Doctor Dashboard
+router.get("/doctor", auth, async (req, res) => {
   try {
+    // Allow only doctor
+    if (req.user.role !== "doctor") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
     const doctorId = req.user.id;
-
-    const totalPatients = await Patient.countDocuments({
-      assignedDoctor: doctorId
-    });
-
-    const totalAppointments = await Appointment.countDocuments({
-      doctor: doctorId
-    });
-
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const tomorrow = new Date(today);
-    tomorrow.setDate(today.getDate() + 1);
-
-    const todayAppointments = await Appointment.countDocuments({
-      doctor: doctorId,
-      date: { $gte: today, $lt: tomorrow }
-    });
-
-    const pendingAppointments = await Appointment.countDocuments({
-      doctor: doctorId,
-      status: "scheduled"
-    });
-
-    const completedAppointments = await Appointment.countDocuments({
-      doctor: doctorId,
-      status: "completed"
-    });
-
-    res.json({
-      totalPatients,
+    const [
       totalAppointments,
       todayAppointments,
-      pendingAppointments,
-      completedAppointments
+      upcomingAppointments,
+      completedAppointments,
+      cancelledAppointments,
+    ] = await Promise.all([
+      Appointment.countDocuments({ doctor: doctorId }),
+      Appointment.countDocuments({
+        doctor: doctorId,
+        date: { $gte: today },
+      }),
+      Appointment.countDocuments({
+        doctor: doctorId,
+        date: { $gt: new Date() },
+        status: "scheduled",
+      }),
+      Appointment.countDocuments({
+        doctor: doctorId,
+        status: "completed",
+      }),
+      Appointment.countDocuments({
+        doctor: doctorId,
+        status: "cancelled",
+      }),
+    ]);
+
+    const doctor = await User.findById(doctorId).select("-password");
+
+    res.json({
+      doctor,
+      stats: {
+        totalAppointments,
+        todayAppointments,
+        upcomingAppointments,
+        completedAppointments,
+        cancelledAppointments,
+      },
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
