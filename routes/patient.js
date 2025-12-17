@@ -3,7 +3,11 @@ const router = express.Router();
 const auth = require("../middleware/auth");
 const Patient = require("../models/patient");
 
-// Create patient (Doctor only)
+/**
+ * ==============================
+ * CREATE PATIENT (Doctor/Admin)
+ * ==============================
+ */
 router.post("/create", auth, async (req, res) => {
   if (req.user.role !== "doctor" && req.user.role !== "admin") {
     return res.status(403).send("Access denied");
@@ -22,6 +26,23 @@ router.post("/create", auth, async (req, res) => {
     });
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+});
+
+/**
+ * ==========================================
+ * GET ALL PATIENTS CREATED BY LOGGED-IN USER
+ * ==========================================
+ */
+router.get("/my-patients", auth, async (req, res) => {
+  try {
+    const patients = await Patient.find({
+      createdBy: req.user.id
+    }).sort({ createdAt: -1 });
+
+    res.json(patients);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
