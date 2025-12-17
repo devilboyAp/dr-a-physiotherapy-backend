@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
-const Patient = require("../models/Patient");
+const Patient = require("../models/patient");
 
 // Create patient (Doctor only)
 router.post("/create", auth, async (req, res) => {
