@@ -10,10 +10,6 @@ const router = express.Router();
 ========================= */
 router.post("/create-user", async (req, res) => {
   try {
-    // Only admin allowed
-    if (req.user.role !== "admin") {
-      return res.status(403).json({ message: "Access denied" });
-    }
 
     const { name, email, password, role } = req.body;
 
