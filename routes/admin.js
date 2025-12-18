@@ -8,7 +8,7 @@ const router = express.Router();
 /* =========================
    ADMIN: CREATE USER
 ========================= */
-router.post("/create-user", authMiddleware, async (req, res) => {
+router.post("/create-user", async (req, res) => {
   try {
     // Only admin allowed
     if (req.user.role !== "admin") {
