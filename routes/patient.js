@@ -1,48 +1,49 @@
 const express = require("express");
+const Patient = require("../models/Patient");
+const authMiddleware = require("../middleware/auth");
+
 const router = express.Router();
-const auth = require("../middleware/auth");
-const Patient = require("../models/patient");
 
 /**
- * ==============================
- * CREATE PATIENT (Doctor/Admin)
- * ==============================
+ * ADD PATIENT
  */
-router.post("/create", auth, async (req, res) => {
-  if (req.user.role !== "doctor" && req.user.role !== "admin") {
-    return res.status(403).send("Access denied");
-  }
-
+router.post("/", authMiddleware, async (req, res) => {
   try {
-    const patient = await Patient.create({
-      ...req.body,
-      assignedDoctor: req.user.id,
+    const { name, age, gender, phone, condition } = req.body;
+
+    if (!name || !phone) {
+      return res.status(400).json({ message: "Name and phone required" });
+    }
+
+    const patient = new Patient({
+      name,
+      age,
+      gender,
+      phone,
+      condition,
       createdBy: req.user.id
     });
 
+    await patient.save();
+
     res.json({
-      message: "Patient created successfully",
+      message: "Patient added successfully",
       patient
     });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 
 /**
- * ==========================================
- * GET ALL PATIENTS CREATED BY LOGGED-IN USER
- * ==========================================
+ * GET ALL PATIENTS
  */
-router.get("/my-patients", auth, async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
-    const patients = await Patient.find({
-      createdBy: req.user.id
-    }).sort({ createdAt: -1 });
-
+    const patients = await Patient.find().sort({ createdAt: -1 });
     res.json(patients);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 });
 
