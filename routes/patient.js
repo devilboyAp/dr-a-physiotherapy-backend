@@ -7,7 +7,7 @@ const router = express.Router();
 /**
  * ADD PATIENT
  */
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/","pre", authMiddleware, async (req, res) => {
   try {
     const { name, age, gender, phone, condition } = req.body;
 
