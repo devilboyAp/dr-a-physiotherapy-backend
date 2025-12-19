@@ -6,13 +6,14 @@ const router = express.Router();
 
 /**
  * ADD PATIENT
+ * Accepts /patient AND /patient/pre
  */
-router.post("/","pre", authMiddleware, async (req, res) => {
+router.post(["/", "/pre"], authMiddleware, async (req, res) => {
   try {
     const { name, age, gender, phone, condition } = req.body;
 
     if (!name || !phone) {
-      return res.status(400).json({ message: "Name and phone required" });
+      return res.status(400).json({ message: "Name and phone are required" });
     }
 
     const patient = new Patient({
@@ -26,7 +27,7 @@ router.post("/","pre", authMiddleware, async (req, res) => {
 
     await patient.save();
 
-    res.json({
+    res.status(201).json({
       message: "Patient added successfully",
       patient
     });
@@ -38,9 +39,11 @@ router.post("/","pre", authMiddleware, async (req, res) => {
 /**
  * GET ALL PATIENTS
  */
-router.get("/", authMiddleware, async (req, res) => {
+router.get(["/", "/pre"], authMiddleware, async (req, res) => {
   try {
-    const patients = await Patient.find().sort({ createdAt: -1 });
+    const patients = await Patient.find()
+      .sort({ createdAt: -1 });
+
     res.json(patients);
   } catch (err) {
     res.status(500).json({ message: err.message });
