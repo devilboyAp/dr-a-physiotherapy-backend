@@ -7,18 +7,13 @@ module.exports = (req, res, next) => {
     return res.status(401).json({ message: "No token" });
   }
 
-  // 🔑 Remove "Bearer " from token
   const token = authHeader.split(" ")[1];
-
-  if (!token) {
-    return res.status(401).json({ message: "Token malformed" });
-  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // very important for admin check
+    req.user = decoded;
     next();
-  } catch (err) {
-    return res.status(401).json({ message: "Invalid token" });
+  } catch (error) {
+    res.status(401).json({ message: "Invalid token" });
   }
 };
