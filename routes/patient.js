@@ -6,7 +6,7 @@ const router = express.Router();
 
 /**
  * ADD PATIENT
- * Accepts /patient AND /patient/pre
+ * accepts /patient and /patient/pre
  */
 router.post(["/", "/pre"], authMiddleware, async (req, res) => {
   try {
@@ -38,12 +38,11 @@ router.post(["/", "/pre"], authMiddleware, async (req, res) => {
 
 /**
  * GET ALL PATIENTS
+ * accepts /patient and /patient/pre
  */
 router.get(["/", "/pre"], authMiddleware, async (req, res) => {
   try {
-    const patients = await Patient.find()
-      .sort({ createdAt: -1 });
-
+    const patients = await Patient.find().sort({ createdAt: -1 });
     res.json(patients);
   } catch (err) {
     res.status(500).json({ message: err.message });
