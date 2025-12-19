@@ -15,38 +15,45 @@ app.use(express.json());
    DATABASE
 ====================== */
 mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => console.error("MongoDB Error:", err));
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch(err => console.error("❌ MongoDB Error:", err));
 
 /* ======================
    ROUTES
 ====================== */
+
+// AUTH
 app.use("/auth", require("./routes/auth"));
+
+// ADMIN / DOCTOR / STAFF
 app.use("/admin", require("./routes/admin"));
 app.use("/doctor", require("./routes/doctor"));
-app.use("/patient", require("./routes/patient"));
-app.use("/appointment", require("./routes/appointment"));
-app.use("/doctor", require("./routes/doctorDashboard"));
-app.use("/dashboard", require("./routes/dashboard"));
-app.use("/dashboard", require("./routes/doctorDashboard"));
-app.use("/dashboard", require("./routes/patientDashboard"));
+
+// CORE MODULES
+app.use("/patients", require("./routes/patient"));
+app.use("/appointments", require("./routes/appointment"));
+
+// DASHBOARDS (role based)
+app.use("/dashboard/admin", require("./routes/adminDashboard"));
+app.use("/dashboard/doctor", require("./routes/doctorDashboard"));
+app.use("/dashboard/patient", require("./routes/patientDashboard"));
 
 /* ======================
    HEALTH CHECK
 ====================== */
 app.get("/", (req, res) => {
-  res.send("Dr. A Physiotherapy Backend Running 🚀");
+  res.send("🏥 Dr. Apurba Physiotherapy Backend Running");
 });
 
 /* ======================
    SERVER
 ====================== */
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
+  console.log(`🚀 Server started on port ${PORT}`);
 });
-
-
-
-
