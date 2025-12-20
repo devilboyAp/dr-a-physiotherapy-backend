@@ -5,10 +5,12 @@ const authMiddleware = require("../middleware/auth");
 const router = express.Router();
 
 /**
+ * =========================
  * ADD PATIENT
- * accepts /patient and /patient/pre
+ * POST /patients/pre
+ * =========================
  */
-router.post(["/", "/pre"], authMiddleware, async (req, res) => {
+router.post("/pre", authMiddleware, async (req, res) => {
   try {
     const { name, age, gender, phone, condition } = req.body;
 
@@ -37,13 +39,62 @@ router.post(["/", "/pre"], authMiddleware, async (req, res) => {
 });
 
 /**
+ * =========================
  * GET ALL PATIENTS
- * accepts /patient and /patient/pre
+ * GET /patients/pre
+ * =========================
  */
-router.get(["/", "/pre"], authMiddleware, async (req, res) => {
+router.get("/pre", authMiddleware, async (req, res) => {
   try {
     const patients = await Patient.find().sort({ createdAt: -1 });
     res.json(patients);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+/**
+ * =========================
+ * UPDATE PATIENT
+ * PUT /patients/:id
+ * =========================
+ */
+router.put("/:id", authMiddleware, async (req, res) => {
+  try {
+    const updatedPatient = await Patient.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    if (!updatedPatient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    res.json({
+      message: "Patient updated successfully",
+      patient: updatedPatient
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+/**
+ * =========================
+ * DELETE PATIENT
+ * DELETE /patients/:id
+ * =========================
+ */
+router.delete("/:id", authMiddleware, async (req, res) => {
+  try {
+    const patient = await Patient.findByIdAndDelete(req.params.id);
+
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    res.json({ message: "Patient deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
