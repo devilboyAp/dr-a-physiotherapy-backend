@@ -1,10 +1,17 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const Patient = require("../models/patient");
 const authMiddleware = require("../middleware/auth");
 
 const router = express.Router();
 
+/**
+ * =========================
+ * ADMIN – CREATE USER
+ * POST /admin/create-user
+ * =========================
+ */
 router.post("/create-user", authMiddleware, async (req, res) => {
   try {
     if (req.user.role !== "admin") {
@@ -36,6 +43,28 @@ router.post("/create-user", authMiddleware, async (req, res) => {
         role: user.role
       }
     });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+/**
+ * =========================
+ * ADMIN – GET ALL PATIENTS
+ * GET /admin/patients
+ * =========================
+ */
+router.get("/patients", authMiddleware, async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const patients = await Patient.find()
+      .populate("createdBy", "name email role")
+      .sort({ createdAt: -1 });
+
+    res.json(patients);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
