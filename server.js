@@ -1,4 +1,5 @@
 require("dotenv").config();
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -17,7 +18,7 @@ app.use(express.json());
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.error("❌ MongoDB Error:", err));
+  .catch(err => console.error("❌ MongoDB Error:", err));
 
 /* =======================
    ROUTES
@@ -34,23 +35,22 @@ app.use("/doctor", require("./routes/doctor"));
 app.use("/patients", require("./routes/patient"));
 app.use("/appointments", require("./routes/appointment"));
 
-// DASHBOARDS (ONLY EXISTING FILES)
+// DASHBOARDS
 app.use("/dashboard/doctor", require("./routes/doctorDashboard"));
 app.use("/dashboard/patient", require("./routes/patientDashboard"));
-
-// ❌ REMOVED adminDashboard (file does not exist)
 
 /* =======================
    HEALTH CHECK
 ======================= */
 app.get("/", (req, res) => {
-  res.send("🚀 Dr. Apurba Physiotherapy Backend Running");
+  res.send("✅ Dr. Apurba Physiotherapy Backend Running");
 });
 
 /* =======================
    SERVER
 ======================= */
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-  console.log(`✅ Server started on port ${PORT}`);
+  console.log(`🚀 Server started on port ${PORT}`);
 });
