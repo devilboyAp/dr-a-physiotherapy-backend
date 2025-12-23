@@ -111,6 +111,15 @@ router.delete("/:id", authMiddleware, async (req, res) => {
   }
 });
 
+module.exports = router;      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    res.json({ message: "Patient deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;    if (!patient) {
       return res.status(404).json({ message: "Patient not found" });
     }
