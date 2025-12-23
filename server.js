@@ -38,6 +38,7 @@ app.use("/appointments", require("./routes/appointment"));
 // DASHBOARDS
 app.use("/dashboard/doctor", require("./routes/doctorDashboard"));
 app.use("/dashboard/patient", require("./routes/patientDashboard"));
+app.use("/bills", require("./routes/bill"));
 
 /* =======================
    HEALTH CHECK
@@ -54,3 +55,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Server started on port ${PORT}`);
 });
+
