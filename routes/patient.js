@@ -8,6 +8,7 @@ const router = express.Router();
  * =========================
  * ADD PATIENT
  * POST /patients/pre
+ * (Doctor or Admin)
  * =========================
  */
 router.post("/pre", authMiddleware, async (req, res) => {
@@ -24,7 +25,7 @@ router.post("/pre", authMiddleware, async (req, res) => {
       gender,
       phone,
       condition,
-      createdBy: req.user.id   // 🔐 doctor-wise ownership
+      createdBy: req.user.id
     });
 
     await patient.save();
@@ -47,7 +48,7 @@ router.post("/pre", authMiddleware, async (req, res) => {
 router.get("/pre", authMiddleware, async (req, res) => {
   try {
     const patients = await Patient.find({
-      createdBy: req.user.id   // ✅ IMPORTANT FIX
+      createdBy: req.user.id
     }).sort({ createdAt: -1 });
 
     res.json(patients);
@@ -58,14 +59,18 @@ router.get("/pre", authMiddleware, async (req, res) => {
 
 /**
  * =========================
- * UPDATE PATIENT
+ * UPDATE PATIENT (ADMIN ONLY)
  * PUT /patients/:id
  * =========================
  */
 router.put("/:id", authMiddleware, async (req, res) => {
   try {
-    const updatedPatient = await Patient.findOneAndUpdate(
-      { _id: req.params.id, createdBy: req.user.id }, // 🔐 security check
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Admin only access" });
+    }
+
+    const updatedPatient = await Patient.findByIdAndUpdate(
+      req.params.id,
       req.body,
       { new: true }
     );
@@ -85,16 +90,17 @@ router.put("/:id", authMiddleware, async (req, res) => {
 
 /**
  * =========================
- * DELETE PATIENT
+ * DELETE PATIENT (ADMIN ONLY)
  * DELETE /patients/:id
  * =========================
  */
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
-    const patient = await Patient.findOneAndDelete({
-      _id: req.params.id,
-      createdBy: req.user.id   // 🔐 security check
-    });
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Admin only access" });
+    }
+
+    const patient = await Patient.findByIdAndDelete(req.params.id);
 
     if (!patient) {
       return res.status(404).json({ message: "Patient not found" });
@@ -104,6 +110,9 @@ router.delete("/:id", authMiddleware, async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+});
+
+module.exports = router;  }
 });
 
 module.exports = router;
